@@ -416,9 +416,7 @@ onMounted(() => {
   .text-cont {
     img {
       width: 100%;
-      min-width: 300px;
       max-width: 600px;
-      height: 290px;
     }
   }
 }
