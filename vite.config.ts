@@ -64,8 +64,8 @@ export default ({ mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
-          // 加载全局样式
-          additionalData: '@import "@/assets/common.scss";',
+          // 使用现代的 @use 语法替代 @import
+          additionalData: '@use "@/assets/common.scss" as *;',
         },
       },
       postcss: {

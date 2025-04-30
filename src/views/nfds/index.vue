@@ -1,3 +1,202 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+
+// 所有图片导入
+import ds_01 from '@/assets/shenzhenxinwen/ds_01.png';
+import ds_02 from '@/assets/shenzhenxinwen/ds_02.png';
+import ds_03 from '@/assets/shenzhenxinwen/ds_03.png';
+import ds_04 from '@/assets/shenzhenxinwen/ds_04.png';
+import ds_05 from '@/assets/shenzhenxinwen/ds_05.png';
+import ds_06 from '@/assets/shenzhenxinwen/ds_06.png';
+import ds_07 from '@/assets/shenzhenxinwen/ds_07.png';
+
+// 定义 newsRef
+const newsRef = ref<HTMLElement | null>(null);
+
+// 定义类型
+interface NewsImage {
+  type: "image";
+  src: string;
+  alt: string;
+  loaded: boolean;
+}
+
+interface NewsImageList {
+  type: "imageList";
+  src: string[];
+  loaded: boolean;
+  names: string[];
+}
+
+interface NewsText {
+  type: "paragraph";
+  text: string;
+}
+
+type ContentItem = NewsImage | NewsImageList | NewsText;
+
+interface NewsData {
+  header: {
+    title: string;
+    date: string;
+    source: string;
+  };
+  content: ContentItem[];
+  footer: {
+    editor: string;
+  };
+}
+
+// 设置图片加载状态
+const loadingStates = ref<Record<string, boolean>>({});
+const errorStates = ref<Record<string, boolean>>({});
+
+// 使用数据结构
+const newsData: NewsData = {
+  header: {
+    title: `2024年庆祝元旦联欢会暨龙光社区长青老龄大学秋季结业汇演圆满落幕`,
+    date: "2024-12-12 20:21",
+    source: "南方都市报"
+  },
+  content: [
+    {
+      type: "paragraph",
+      text: `12月12日下午，2024年庆祝元旦联欢会暨龙光社区长青老龄大学秋季结业汇演在龙井村篮球场举办。
+桃源街道长青老龄大学党委书记赵晨曦、龙光社区党委副书记郑建如、龙光社区长青老龄大学校长林晓亮、民生微实事负责人伍家耀、办学专员林晓双、社区党群中心主任曾春娴、龙光社区长青老龄大学常务校长何楚丽出席出席本次活动，共同见证学员们蓬勃向上的精神风貌和孜孜不倦的学习成果。`
+    },
+    {
+      type: "image",
+      src: ds_01,
+      alt: "活动图片1",
+      loaded: false
+    },
+    {
+      type: "paragraph",
+      text: `（校长林晓亮、常务校长何楚丽给长青老龄大学秋季班优秀学员颁发证书）`
+    },
+    {
+      type: "image",
+      src: ds_02,
+      alt: "活动图片2",
+      loaded: false
+    },
+    {
+      type: "paragraph",
+      text: `活动现场气氛热烈，社区领导、嘉宾与学员齐聚一堂。汇演节目精彩纷呈，太极班的《42 式太极拳表演》刚柔并济、二胡班的《画你、康定情歌连奏》悠扬婉转、舞蹈班的《零落》灵动飘逸、模特形体《声声慢》等等，涵盖太极、二胡、舞蹈、合唱、独唱、模特秀、书法展示等多种表演形式，充分展现学员们的学习成果与精神风貌，赢得阵阵掌声。`
+    },
+    {
+      type: "imageList",
+      src: [ds_03, ds_04],
+      names: ['舞蹈《别上当》', '《书法展示》'],
+      loaded: false
+    },
+    {
+      type: "imageList",
+      src: [ds_05, ds_06],
+      names: ['合唱《复兴的力量》', ' 舞蹈《零落》'],
+      loaded: false
+    },
+    {
+      type: "paragraph",
+      text: `出色的节目，展示了龙光社区老龄大学的风采，嘹亮的歌声，表达了全校师生无限的热情，曼妙的舞姿,让我们看到了龙光社区长青老龄大学铸就的无数个潇潇洒酒的俏夕阳。“老有所教、老有所学、老有所乐、老有所为在这里得到了最好的诠释。`
+    },
+    {
+      type: "paragraph",
+      text: `此次活动不仅是学员成果的展示，也为社区增添浓郁文化氛围，进一步推动社区老龄事业发展。`
+    },
+    {
+      type: "image",
+      src: ds_07,
+      alt: "活动图片4",
+      loaded: false
+    },
+  ],
+  footer: {
+    editor: "徐洋"
+  }
+};
+
+onMounted(() => {
+  // 创建 IntersectionObserver
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const imgContainer = entry.target as HTMLElement;
+        const imgId = imgContainer.dataset.imgId as string;
+
+        // 处理单张图片
+        const imgItem = newsData.content.find(item =>
+          item.type === 'image' && (item as NewsImage).src === imgId
+        ) as NewsImage | undefined;
+
+        if (imgItem) {
+          // 创建一个新的图片元素来预加载
+          const img = new Image();
+          img.onload = () => {
+            // 加载成功
+            imgItem.loaded = true;
+            loadingStates.value[imgId] = false;
+          };
+          img.onerror = () => {
+            // 加载失败
+            loadingStates.value[imgId] = false;
+            errorStates.value[imgId] = true;
+          };
+
+          // 开始加载图片
+          loadingStates.value[imgId] = true;
+          img.src = imgId;
+        } else {
+          // 处理图片列表
+          const listItems = newsData.content.filter(item =>
+            item.type === 'imageList'
+          ) as NewsImageList[];
+
+          for (const listItem of listItems) {
+            // 查找匹配的图片
+            const imgIndex = listItem.src.findIndex(imgSrc => imgSrc === imgId);
+
+            if (imgIndex !== -1) {
+              // 创建一个新的图片元素来预加载
+              const img = new Image();
+              img.onload = () => {
+                // 加载成功
+                listItem.loaded = true;
+                loadingStates.value[imgId] = false;
+              };
+              img.onerror = () => {
+                // 加载失败
+                loadingStates.value[imgId] = false;
+                errorStates.value[imgId] = true;
+              };
+
+              // 开始加载图片
+              loadingStates.value[imgId] = true;
+              img.src = imgId;
+              break;
+            }
+          }
+        }
+
+        // 图片已处理，取消观察
+        observer.unobserve(imgContainer);
+      }
+    });
+  }, {
+    root: null,
+    rootMargin: '100px',
+    threshold: 0.1
+  });
+
+  // 开始观察所有图片容器
+  setTimeout(() => {
+    document.querySelectorAll('.lazy-img-container, .lazy-img-list-img').forEach(container => {
+      observer.observe(container);
+    });
+  }, 100);
+});
+</script>
+
 <template>
   <div class="news" ref="newsRef">
     <div class="logoTitle">
@@ -6,47 +205,51 @@
       </div>
     </div>
     <div class="top-cont">
-      <h1 class="title">结业啦！龙光社区老龄大学2023年度结业典礼暨教学成果汇报演出圆满落幕</h1>
-      <span class="desc">时间：2023-11-16 15:21 来源：南方都市报</span>
+      <h1 class="title">{{ newsData.header.title }}</h1>
+      <span class="desc">时间：{{ newsData.header.date }} 来源：{{ newsData.header.source }}</span>
       <p class="line"></p>
     </div>
     <div class="text-cont">
-      <p class="cont-item">
-        时光走笔，岁月成章，秋来冬往，别来无恙。在2023年的一年时间里，龙光社区长青老龄大学得到了平台上和各级领导的关心与支持，教学工作取得了巨大的成绩。今天我们欢聚一堂，在龙井村篮球场举办2023年度龙光社区老龄大学的结业典礼暨教学成果汇报演出，共同见证长青老龄大学学员们蓬勃向上的精神风貌和孜孜不倦的学习成果。
-   活动伊始，龙光社区长青老龄大学常务校长何楚丽讲话、龙光社区党委副书记许潇为本次活动致辞，并为老师全体学员颁发结业证书，10名学员获评“优秀学员”。
-      </p>
-      <img src="@/assets/shenzhenxinwen/ds_01.png" alt="" />
-      <img src="@/assets/shenzhenxinwen/ds_02.png" alt="" />
-      <p class="cont-item">
-        学员们纷纷表示，此次活动为大家提供了一个增进情谊、展示自我的平台，很期待之后的课程，会坚持“活到老，学到老”，把晚年生活过得更加精彩有趣
-      </p>
-      <img src="@/assets/shenzhenxinwen/ds_03.png" alt="" />
-      <p class="cont-item">
-        太极班带来的表演《新编二十八式太极拳》
-      </p>
-      <img src="@/assets/shenzhenxinwen/ds_04.png" alt="" />
-      <p class="cont-item">龙光社区老年协会带来的舞蹈《我的祖国》</p>
-      <img src="@/assets/shenzhenxinwen/ds_05.png" alt="" />
-      <p class="cont-item">二胡班的民歌连奏《摘辣椒》、《鄂伦春小唱》</p>
-      <img src="@/assets/shenzhenxinwen/ds_06.png" alt="" />
-      <p class="cont-item">龙井兰兰健身舞队带来的表演《我把来生许给你》</p>
-      <img src="@/assets/shenzhenxinwen/ds_07.png" alt="" />
-      <p class="cont-item">行楷隶篆见功夫，书法艺术耀夜空。书法班的《书法展示》</p>
-      <img src="@/assets/shenzhenxinwen/ds_08.png" alt="" />
-      <p class="cont-item">社区乐陶陶民乐队的伴唱表演《美丽的草原我的家》、民乐合奏《喜洋洋》</p>
-      <img src="@/assets/shenzhenxinwen/ds_09.png" alt="" />
-      <p class="cont-item">舞蹈班的佳人们带来的古典舞表演《闲庭絮》</p>
-      <img src="@/assets/shenzhenxinwen/ds_10.png" alt="" />
-      <p class="cont-item">舞出华夏韵味，彰显民族文化，展现东方神韵，彰显中华风采。龙井兰兰健身舞队带来的表演《中国的广场舞》</p>
-      <img src="@/assets/shenzhenxinwen/ds_11.png" alt="" />
-      <p class="cont-item">龙光快乐夕阳红舞队的表演《喜事盈门》</p>
-      <img src="@/assets/shenzhenxinwen/ds_12.png" alt="" />
-      <p class="cont-item">声乐班的合唱表演《家乡的月亮》、《八月桂花遍地开》
-    出色的节目，展示了我们龙光社区老龄大学的风采，嘹亮的歌声，表达了全校师生无限的热情，曼妙的舞姿,让我们看到了龙光社区长青老龄大学铸就的无数个潇潇洒酒的俏夕阳。“老有所教、老有所学、老有所乐、老有所为在这里得到了最好的诠释。我们祝愿老年教育的明天更加美丽！伟大的祖国永远繁荣昌盛！感谢学校、感谢演员们的精彩演出,感谢对这次活动支持的龙光社区党委、龙光社区居委会，以及龙光社区党群服务中心!祝愿龙光社区长青老龄大学越办越好!祝愿龙光社区长青老龄大学的未来更加灿烂!汇报演出到此结束。朋友们再见！
-    </p>
-    <img src="@/assets/shenzhenxinwen/ds_13.png" alt="" />
+      <template v-for="(item, index) in newsData.content" :key="index">
+        <p v-if="item.type === 'paragraph'" class="cont-item">{{ item.text }}</p>
+        <div
+          v-else-if="item.type === 'image'"
+          class="image-container lazy-img-container"
+          :data-img-id="item.src"
+        >
+          <img v-if="item.loaded" :src="item.src" :alt="item.alt" class="fade-in">
+          <div v-else-if="loadingStates[item.src]" class="loading-placeholder">加载中...</div>
+          <div v-else-if="errorStates[item.src]" class="error-placeholder">图片加载失败</div>
+          <div v-else class="loading-placeholder">等待加载</div>
+        </div>
+        <div
+          v-else-if="item.type === 'imageList'"
+          class="image-list-container"
+        >
+          <div class="image-list-row">
+            <div
+              v-for="(imgSrc, idx) in item.src"
+              :key="imgSrc"
+              class="image-container lazy-img-list-img"
+              :data-img-id="imgSrc"
+            >
+              <div v-if="loadingStates[imgSrc] === false && !errorStates[imgSrc]">
+                <img
+                :src="imgSrc"
+                alt="活动图片"
+                class="fade-in"
+              >
+              <span style="text-align: center;">{{item.names[idx]}}</span>
+              </div>
+              <div v-else-if="loadingStates[imgSrc]" class="loading-placeholder">加载中...</div>
+              <div v-else-if="errorStates[imgSrc]" class="error-placeholder">图片加载失败</div>
+              <div v-else class="loading-placeholder">等待加载</div>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
-    <div class="tips">[责任编辑：徐杰]</div>
+    <div class="tips">[责任编辑：{{ newsData.footer.editor }}]</div>
   </div>
 </template>
 
@@ -128,8 +331,65 @@
     margin: 0;
   }
 
+  .image-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 10px 0;
+    min-height: 200px;
+    div {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      span {
+        margin-top: 10px;
+      }
+    }
+    .loading-placeholder, .error-placeholder {
+      width: 100%;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f5f5f5;
+      color: #666;
+    }
+
+    .error-placeholder {
+      color: #ff5252;
+    }
+  }
+
   img {
     max-width: 600px;
+    height: 290px;
+    width: 100%;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.5s;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .image-list-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px 0;
+    .image-list-row {
+      display: flex;
+      gap: 10px;
+      .image-container {
+        flex: 1 1 0;
+        max-width: 49%;
+        min-width: 0;
+      }
+    }
   }
 }
 
@@ -158,6 +418,7 @@
       width: 100%;
       min-width: 300px;
       max-width: 600px;
+      height: 290px;
     }
   }
 }
