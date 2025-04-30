@@ -34,7 +34,7 @@ export default ({ mode }) => {
     base: "./", // 设置打包路径
     build: {
       index: "index.html", //指定入口文件
-      outDir: "dist", //指定打包输出路径
+      outDir: "docs", //指定打包输出路径
       minify: 'terser',
       target: ['es2015'],
       emptyOutDir: true,
