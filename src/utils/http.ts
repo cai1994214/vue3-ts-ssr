@@ -1,46 +1,47 @@
-import axios, { AxiosRequestConfig,  AxiosResponse } from 'axios'
-const defaultConfig = {
-    timeout: 5000,
-    baseUrl: ''
-}
+import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
+
+const defaultConfig: AxiosRequestConfig = {
+  timeout: 5000,
+  baseURL: '',
+};
+
 class Http {
-    constructor() {
-        this.httpInterceptorsRequest()
-        this.httpInterceptorsRresponse()
-    }
+  private static axiosInstance: AxiosInstance = axios.create(defaultConfig);
 
-    private static asiosInstance = axios.create(defaultConfig)
+  constructor() {
+    this.setupRequestInterceptor();
+    this.setupResponseInterceptor();
+  }
 
-    private httpInterceptorsRequest() {
-        // 请求拦截
-        Http.asiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
-            return config
-        }, (error) => {
-            return Promise.reject(error)
-        })
-    }
+  private setupRequestInterceptor() {
+    Http.axiosInstance.interceptors.request.use(
+      (config) => config,
+      (error) => Promise.reject(error),
+    );
+  }
 
-    private httpInterceptorsRresponse() {
-        // 响应拦截
-        Http.asiosInstance.interceptors.response.use((response: AxiosResponse) => {
-            return response
-        }  , (error) => {
-            return Promise.reject(error)
-        })
-    }
+  private setupResponseInterceptor() {
+    Http.axiosInstance.interceptors.response.use(
+      (response: AxiosResponse) => response,
+      (error) => Promise.reject(error),
+    );
+  }
 
-    // 封装请求
-    // get
-    public httpRequsetGet<T>(url: string, params: AxiosRequestConfig):Promise<T> {
-        return Http.asiosInstance.get(url, params).then(res => res.data).catch()
-    }
+  public get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return Http.axiosInstance.get<T>(url, config).then((response) => response.data);
+  }
 
-    // post
-    public httpRequsetPost<T>(url: string, params: AxiosRequestConfig):Promise<T> {
-        return Http.asiosInstance.post(url, params).then(res => res.data).catch()
-    }
+  public post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+    return Http.axiosInstance.post<T>(url, data, config).then((response) => response.data);
+  }
+
+  public httpRequsetGet<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return this.get<T>(url, config);
+  }
+
+  public httpRequsetPost<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+    return this.post<T>(url, data, config);
+  }
 }
 
-
-export const http = new Http()
-
+export const http = new Http();
