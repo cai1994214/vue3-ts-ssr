@@ -36,7 +36,10 @@ export interface ArticleImageList {
 
 export type ArticleContentItem = ArticleParagraph | ArticleImage | ArticleImageList;
 
+export type NewsArticleTheme = 'classic' | 'sznews' | 'jingbao' | 'sztq' | 'nandu' | 'wanbao';
+
 export interface NewsArticleData {
+  theme?: NewsArticleTheme;
   logo: ArticleLogo;
   title: string;
   meta: string;

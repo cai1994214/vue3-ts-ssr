@@ -5,6 +5,7 @@ import tq_01 from '@/assets/shenzhenxinwen/tq_01.png';
 import tq_02 from '@/assets/shenzhenxinwen/tq_02.png';
 
 const articleData: NewsArticleData = {
+  theme: 'sztq',
   logo: {
     type: 'image',
     src: 'http://sztqb.sznews.com/tqPad/webimages/pic-logo.jpg',

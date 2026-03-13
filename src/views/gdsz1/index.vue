@@ -6,6 +6,7 @@ import gd_05 from '@/assets/shenzhenxinwen/gd_05.png';
 import gd_06 from '@/assets/shenzhenxinwen/gd_06.png';
 
 const articleData: NewsArticleData = {
+  theme: 'sznews',
   logo: {
     type: 'image',
     src: 'https://www.sznews.com/2016mi/images/logo.png',

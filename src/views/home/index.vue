@@ -7,6 +7,7 @@ import szwb3 from '@/assets/shenzhenxinwen/szwb3.png';
 import szwb4 from '@/assets/shenzhenxinwen/szwb4.png';
 
 const articleData: NewsArticleData = {
+  theme: 'wanbao',
   logo: {
     type: 'image',
     src: 'http://wb.sznews.com/tqPad/webimages/pic-logo.jpg',

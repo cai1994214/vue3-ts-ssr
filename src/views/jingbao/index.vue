@@ -5,6 +5,7 @@ import jingbao1 from '@/assets/jingbao/jingbao1.png';
 import jingbao2 from '@/assets/jingbao/jingbao2.png';
 
 const articleData: NewsArticleData = {
+  theme: 'jingbao',
   logo: {
     type: 'image',
     src: 'https://jb.sznews.com/ePaper/static/img/jblogo.d03962ec.png',

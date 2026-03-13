@@ -10,6 +10,7 @@ import ds_06 from '@/assets/shenzhenxinwen/ds_06.png';
 import ds_07 from '@/assets/shenzhenxinwen/ds_07.png';
 
 const articleData: NewsArticleData = {
+  theme: 'nandu',
   logo: {
     type: 'sprite',
     image: 'https://ipaper.oeeee.com/ipaper/images/paper_icon.png',
